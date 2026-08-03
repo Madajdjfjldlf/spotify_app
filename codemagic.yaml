@@ -8,8 +8,8 @@ workflows:
     scripts:
       - name: Get packages
         script: flutter pub get
-      - name: Build ipa and archive
+      - name: Build custom archive and ipa
         script: |
-          flutter build ipa --release
-    artifacts:
-      - build/ios/ipa/*.ipa
+          flutter build ios --release --no-codesign
+          cd build/ios/archive
+          xcodebuild -archivePath Runner.xcarchive -exportArchive -exportOptionsPlist ../../../ios/ExportOptions.plist -exportPath ../ipa

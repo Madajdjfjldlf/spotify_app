@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:spotify/Common/widgets/AppBar.dart';
-import 'package:spotify/Pages/AppPages/PlayList/playLiIstListview.dart';
-import 'package:spotify/Pages/AppPages/TabBar/TabBarPage.dart';
+import 'package:spotify/Pages/AppPages/homepage/PlayList/playLiIstListview.dart';
+import 'package:spotify/Pages/AppPages/homepage/TabBar/TabBarPage.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});

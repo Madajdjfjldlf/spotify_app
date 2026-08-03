@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:spotify/Common/Helpers/is_dark.dart';
 import 'package:spotify/Common/widgets/AppBar.dart';
+import 'package:spotify/Common/widgets/MainScreen.dart';
 import 'package:spotify/Common/widgets/buttom/buttom_normal.dart';
-import 'package:spotify/Pages/AppPages/Homepage.dart';
+import 'package:spotify/Pages/AppPages/homepage/Homepage.dart';
 import 'package:spotify/Pages/Register/signinpage.dart';
 import 'package:spotify/ThemApp.dart/App_COlor.dart';
 
@@ -45,7 +46,7 @@ class RegisterPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) {
-                        return Homepage();
+                        return Bottombar();
                       },
                     ),
                   );

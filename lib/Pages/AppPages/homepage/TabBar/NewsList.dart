@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:spotify/Pages/AppPages/NowplayingPage.dart';
 
 class NewsList extends StatelessWidget {
   const NewsList({super.key});
@@ -42,12 +44,24 @@ class NewsList extends StatelessWidget {
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          image: DecorationImage(
-                            image: AssetImage(items[index]['image']!),
-                            fit: BoxFit.cover,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return Nowplayingpage();
+                              },
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            image: DecorationImage(
+                              image: AssetImage(items[index]['image']!),
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
@@ -61,10 +75,9 @@ class NewsList extends StatelessWidget {
                             color: Colors.white,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
-                            Icons.play_arrow,
-                            color: Colors.black,
-                            size: 20,
+                          child: SvgPicture.asset(
+                            'Assest/Vectors/Play.svg',
+                            fit: BoxFit.none,
                           ),
                         ),
                       ),

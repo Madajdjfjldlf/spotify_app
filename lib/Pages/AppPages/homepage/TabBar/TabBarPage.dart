@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:spotify/Pages/AppPages/TabBar/NewsList.dart';
+import 'package:spotify/Pages/AppPages/homepage/TabBar/NewsList.dart';
 import 'package:spotify/ThemApp.dart/App_COlor.dart'; // تأكد من مسار الاستيراد الصحيح لديك
 
 class CustomTabs extends StatelessWidget {

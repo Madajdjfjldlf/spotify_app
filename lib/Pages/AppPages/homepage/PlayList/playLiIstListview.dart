@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spotify/Pages/AppPages/PlayList/PlayListwidget.dart';
+import 'package:spotify/Pages/AppPages/homepage/PlayList/PlayListwidget.dart';
 
 class PlaylistView extends StatelessWidget {
   PlaylistView({super.key});

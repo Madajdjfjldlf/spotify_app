@@ -23,19 +23,27 @@ class CdWidget extends StatelessWidget {
           ),
         );
       },
-      child: ClipOval(
-        child: SizedBox(
-          width: size,
-          height: size,
+      // استخدام Container دائري بقص المحتوى بداخله بدلاً من ClipOval
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(shape: BoxShape.circle),
+        child: ClipPath(
+          // أو قص الصورة باستخدام BoxDecoration مباشرة عبر الصورة
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // الصورة بكامل الحجم
-              Image.asset(
-                imagePath,
+              // الصورة بكامل الحجم دائرية الشكل
+              Container(
                 width: size,
                 height: size,
-                fit: BoxFit.cover,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: AssetImage(imagePath),
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
 
               // الثقب في المنتصف مباشرة

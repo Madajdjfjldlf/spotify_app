@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:spotify/Common/Helpers/is_dark.dart';
@@ -23,38 +23,59 @@ class _CdWidgetState extends State<CdWidget>
   double tiltX = 0;
   double tiltY = 0;
 
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 6),
-    )..repeat(); // دوران مستمر
+      duration: const Duration(seconds: 6), // سرعة طبيعية
+    )..repeat();
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
+  /// 👇 عند الضغط
   void _onTapDown(_) {
     setState(() {
-      tiltX = 0.05;
-      tiltY = -0.05;
-      _controller.duration = const Duration(seconds: 2); // تسريع
+      tiltX = 0.02;
+      tiltY = -0.02;
+
+      // 🚀 تسريع
+      _controller.duration = const Duration(milliseconds: 900);
       _controller.repeat();
+    });
+
+    // ⏳ بعد شوي يرجع طبيعي أو يوقف
+    _timer?.cancel();
+    _timer = Timer(const Duration(milliseconds: 700), () {
+      if (!mounted) return;
+
+      _controller.duration = const Duration(seconds: 6);
+      _controller.repeat(); // رجوع للسرعة الطبيعية
+
+      // لو تريده يوقف بدل يرجع:
+      // _controller.stop();
     });
   }
 
-  void _onTapUp(_) {
+  /// 👇 عند رفع الإصبع → انتقال
+  void _onTapUp(_) async {
     setState(() {
       tiltX = 0;
       tiltY = 0;
-      _controller.duration = const Duration(seconds: 6); // رجوع طبيعي
-      _controller.repeat();
     });
+
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    if (!mounted) return;
 
     Navigator.push(
       context,
@@ -72,6 +93,7 @@ class _CdWidgetState extends State<CdWidget>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         transform: Matrix4.identity()
+          ..setEntry(3, 2, 0.001)
           ..rotateX(tiltX)
           ..rotateY(tiltY),
         child: RotationTransition(
@@ -96,7 +118,7 @@ class _CdWidgetState extends State<CdWidget>
                   ),
                 ),
 
-                /// 🌑 Gradient عمق (Linear)
+                /// 🌑 Gradient احترافي
                 Container(
                   width: size,
                   height: size,
@@ -114,12 +136,10 @@ class _CdWidgetState extends State<CdWidget>
                   ),
                 ),
 
-                /// 🎧 خطوط Vinyl (داخلية)
+                /// 🎧 خطوط داخلية
                 CustomPaint(size: Size(size, size), painter: _VinylPainter()),
 
-                /// 🔘 QR في المنتصف
-
-                /// ⚪ نقطة صغيرة
+                /// 🔘 مركز القرص
                 Container(
                   width: size * 0.20,
                   height: size * 0.20,
@@ -131,11 +151,10 @@ class _CdWidgetState extends State<CdWidget>
                   ),
                 ),
 
+                /// 🔲 QR بدل الشعار
                 Positioned(
                   top: 20,
-                  bottom: 0,
-                  left: 20,
-
+                  left: 40,
                   child: SvgPicture.asset(
                     'Assest/Vectors/Spotify logo.svg',
                     width: 20,
@@ -152,14 +171,14 @@ class _CdWidgetState extends State<CdWidget>
   }
 }
 
-/// 🎼 رسام الخطوط الداخلية (احترافي)
+/// 🎼 رسم خطوط القرص
 class _VinylPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.width / 2;
 
     final paint = Paint()
-      ..color = Colors.black.withOpacity(0.100)
+      ..color = Colors.black.withOpacity(0.10)
       ..style = PaintingStyle.stroke;
 
     for (double i = center * 0.35; i < center; i += 3) {

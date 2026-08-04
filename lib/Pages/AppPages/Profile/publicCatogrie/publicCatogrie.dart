@@ -26,6 +26,7 @@ class Publiccatogrie extends StatelessWidget {
             height: 56,
             width: 56,
             decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
               image: DecorationImage(
                 image: AssetImage(photo),
                 fit: BoxFit.fill,

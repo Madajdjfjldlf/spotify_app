@@ -27,10 +27,10 @@ class Prfofilepage extends StatelessWidget {
               // ضبط المسافة من الأعلى لتكون أسفل الـ AppBar مباشرة
               padding: const EdgeInsets.only(top: 110, bottom: 25),
               decoration: BoxDecoration(
-                color: context.isDarkMode ? Appcolor.DarkGrey : Colors.white,
+                color: context.isDarkMode ? Color(0xFF1C1B1B) : Colors.white,
                 borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(60),
-                  bottomRight: Radius.circular(60),
+                  bottomLeft: Radius.circular(70),
+                  bottomRight: Radius.circular(70),
                 ),
               ),
               child: Column(

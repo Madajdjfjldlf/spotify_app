@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:spotify/Common/widgets/AppBar.dart';
+import 'package:spotify/Pages/AppPages/Library/CatogriesAlbum/CatogriesAlbumView.dart';
+import 'package:spotify/Pages/AppPages/homepage/PlayList/playLiIstListview.dart';
+import 'package:spotify/Pages/AppPages/MusicPage/optionplaymusic.dart';
 import 'package:spotify/ThemApp.dart/App_COlor.dart';
 
 class Nowplayingpage extends StatelessWidget {
@@ -21,6 +24,8 @@ class Nowplayingpage extends StatelessWidget {
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 0),
               _songPhoto(context),
@@ -34,7 +39,50 @@ class Nowplayingpage extends StatelessWidget {
                     const SizedBox(height: 20),
                     _songPlayerBar(),
                     const SizedBox(height: 25),
-                    _optionSong(context),
+                    Optionplaymusic(),
+                    const SizedBox(height: 10),
+                    _songsetting(context),
+                    SizedBox(height: 20),
+                    _OfMusical(),
+
+                    SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Text(
+                          'Album',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Catogriesalbumview(
+                      albumsList: [
+                        {
+                          'photo': 'Assest/Images/Albums/Bilie.jpg',
+                          'Title': 'Billie Eilish',
+                          'Subtitle': 'Happier Than Ever',
+                        },
+                        {
+                          'photo': 'Assest/Images/Albums/Bilie 2.jpg',
+                          'Title': 'Hit Me Hard and Soft',
+                          'Subtitle': 'Billie Eilish',
+                        },
+                        {
+                          'photo': 'Assest/Images/Albums/Bilie 3.jpg',
+                          'Title': 'When We All Fall Asleep',
+                          'Subtitle': 'Where Do We Go?',
+                        },
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    _Songs(),
+                    SizedBox(height: 10),
+                    PlaylistView(),
                   ],
                 ),
               ),
@@ -129,7 +177,7 @@ Widget _songPlayerBar() {
 
 Widget _optionSong(dynamic context) {
   return Padding(
-    padding: const EdgeInsets.only(right: 30, left: 30),
+    padding: const EdgeInsets.only(right: 10, left: 10),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -148,8 +196,8 @@ Widget _optionSong(dynamic context) {
           onPressed: () {},
           icon: SvgPicture.asset(
             'Assest/Vectors/Previous.svg',
-            height: 15,
-            width: 15,
+            height: 20,
+            width: 20,
             color: Theme.of(context).brightness == Brightness.dark
                 ? Appcolor.Grey
                 : Appcolor.DarkGrey,
@@ -176,8 +224,8 @@ Widget _optionSong(dynamic context) {
           onPressed: () {},
           icon: SvgPicture.asset(
             'Assest/Vectors/Next.svg',
-            height: 15,
-            width: 15,
+            height: 20,
+            width: 20,
             color: Theme.of(context).brightness == Brightness.dark
                 ? Appcolor.Grey
                 : Appcolor.DarkGrey,
@@ -193,6 +241,79 @@ Widget _optionSong(dynamic context) {
                 ? Appcolor.Grey
                 : Appcolor.DarkGrey,
           ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _songsetting(dynamic context) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 24),
+    child: Row(
+      children: [
+        IconButton(
+          onPressed: () {},
+          icon: Image.asset(
+            'Assest/Vectors/Dvecies.png',
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Appcolor.Grey
+                : Appcolor.DarkGrey,
+
+            height: 20,
+            width: 20,
+          ),
+        ),
+        Spacer(),
+        IconButton(
+          onPressed: () {},
+          icon: SvgPicture.asset(
+            'Assest/Vectors/playListIcon.svg',
+
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Appcolor.Grey
+                : Appcolor.DarkGrey,
+          ),
+        ),
+        SizedBox(width: 2),
+        IconButton(
+          onPressed: () {},
+          icon: SvgPicture.asset(
+            'Assest/Vectors/Share.svg',
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Appcolor.Grey
+                : Appcolor.DarkGrey,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _OfMusical() {
+  return Align(
+    alignment: Alignment.center,
+    child: Text(
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Turpis adipiscing vestibulum orci enim, nascetur vitae ',
+      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+      textAlign: TextAlign.center,
+    ),
+  );
+}
+
+Widget _Songs() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 24),
+    child: Row(
+      children: [
+        Text(
+          'Playlist',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Spacer(),
+        Text(
+          'See More',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ],
     ),

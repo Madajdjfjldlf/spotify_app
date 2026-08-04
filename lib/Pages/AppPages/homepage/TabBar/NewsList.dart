@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:spotify/Pages/AppPages/NowplayingPage.dart';
+import 'package:spotify/Pages/AppPages/MusicPage/NowplayingPage.dart';
 
 class NewsList extends StatelessWidget {
   const NewsList({super.key});

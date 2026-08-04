@@ -12,13 +12,14 @@ class Catogriesalbumview extends StatelessWidget {
       height: 250,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.only(left: 16),
         shrinkWrap: true,
         physics: const BouncingScrollPhysics(),
         itemCount: albumsList.length,
         itemBuilder: (context, index) {
           final albuminfo = albumsList[index];
           return Padding(
-            padding: const EdgeInsets.only(right: 0, left: 0),
+            padding: const EdgeInsets.only(right: 35),
             child: Catogriesalbum(
               Photo: albuminfo['photo']!,
               Title: albuminfo['Title']!,

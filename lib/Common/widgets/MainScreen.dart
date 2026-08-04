@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:spotify/Common/Helpers/is_dark.dart';
@@ -30,15 +31,28 @@ class _BottombarState extends State<Bottombar> {
 
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : Colors.white,
-      extendBody: true, // تمدد محتوى الصفحة خلف الشريط
-      body: _pages[_currentindex],
+      extendBody:
+          true, // تمدد محتوى الصفحة خلف الشريط (هذا ما يسمح بتداخل المحتوى)
+      body: PageTransitionSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (child, animation, secondaryAnimation) {
+          return FadeThroughTransition(
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            child: child,
+          );
+        },
+        child: _pages[_currentindex],
+      ),
 
+      // هنا تم تعديل الـ Padding لإلغاء أي مساحة فارغة غير مرغوبة أسفل الشريط
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16),
+        // جعلنا الـ bottom يفرغ تماماً (0) أو يمكنك وضع مسافة بسيطة جداً حسب رغبتك
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 0),
         child: ClipRRect(
           borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(40),
-            topRight: Radius.circular(40),
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
           ),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
@@ -73,84 +87,68 @@ class _BottombarState extends State<Bottombar> {
                 items: [
                   // 1. الرئيسية
                   BottomNavigationBarItem(
-                    icon: AnimatedContainer(
-                      duration: const Duration(milliseconds: 800),
-                      curve: Curves.easeInOut,
-                      child: SvgPicture.asset(
-                        'Assest/Vectors/Home.svg',
-                        height: _currentindex == 0 ? 35 : 28,
-                        width: _currentindex == 0 ? 35 : 28,
-                        colorFilter: ColorFilter.mode(
-                          _currentindex == 0
-                              ? Colors.green
-                              : (isDarkMode
-                                    ? Colors.grey[400]!
-                                    : Colors.grey[600]!),
-                          BlendMode.srcIn,
-                        ),
+                    icon: SvgPicture.asset(
+                      'Assest/Vectors/Home.svg',
+                      height: _currentindex == 0 ? 35 : 28,
+                      width: _currentindex == 0 ? 35 : 28,
+                      colorFilter: ColorFilter.mode(
+                        _currentindex == 0
+                            ? Colors.green
+                            : (isDarkMode
+                                  ? Colors.grey[400]!
+                                  : Colors.grey[600]!),
+                        BlendMode.srcIn,
                       ),
                     ),
                     label: '',
                   ),
                   // 2. المكتبة
                   BottomNavigationBarItem(
-                    icon: AnimatedContainer(
-                      duration: const Duration(milliseconds: 800),
-                      curve: Curves.easeInOut,
-                      child: SvgPicture.asset(
-                        'Assest/Vectors/albumsMusic.svg',
-                        height: _currentindex == 1 ? 35 : 28,
-                        width: _currentindex == 1 ? 35 : 28,
-                        colorFilter: ColorFilter.mode(
-                          _currentindex == 1
-                              ? Colors.green
-                              : (isDarkMode
-                                    ? Colors.grey[400]!
-                                    : Colors.grey[600]!),
-                          BlendMode.srcIn,
-                        ),
+                    icon: SvgPicture.asset(
+                      'Assest/Vectors/albumsMusic.svg',
+                      height: _currentindex == 1 ? 35 : 28,
+                      width: _currentindex == 1 ? 35 : 28,
+                      colorFilter: ColorFilter.mode(
+                        _currentindex == 1
+                            ? Colors.green
+                            : (isDarkMode
+                                  ? Colors.grey[400]!
+                                  : Colors.grey[600]!),
+                        BlendMode.srcIn,
                       ),
                     ),
                     label: '',
                   ),
                   // 3. البحث
                   BottomNavigationBarItem(
-                    icon: AnimatedContainer(
-                      duration: const Duration(milliseconds: 800),
-                      curve: Curves.easeInOut,
-                      child: SvgPicture.asset(
-                        'Assest/Vectors/Search.svg',
-                        height: _currentindex == 2 ? 35 : 28,
-                        width: _currentindex == 2 ? 35 : 28,
-                        colorFilter: ColorFilter.mode(
-                          _currentindex == 2
-                              ? Colors.green
-                              : (isDarkMode
-                                    ? Colors.grey[400]!
-                                    : Colors.grey[600]!),
-                          BlendMode.srcIn,
-                        ),
+                    icon: SvgPicture.asset(
+                      'Assest/Vectors/Search.svg',
+                      height: _currentindex == 2 ? 35 : 28,
+                      width: _currentindex == 2 ? 35 : 28,
+                      colorFilter: ColorFilter.mode(
+                        _currentindex == 2
+                            ? Colors.green
+                            : (isDarkMode
+                                  ? Colors.grey[400]!
+                                  : Colors.grey[600]!),
+                        BlendMode.srcIn,
                       ),
                     ),
                     label: '',
                   ),
                   // 4. الملف الشخصي
                   BottomNavigationBarItem(
-                    icon: AnimatedContainer(
-                      duration: const Duration(milliseconds: 800),
-                      curve: Curves.easeInOut,
-                      child: SvgPicture.asset(
-                        'Assest/Vectors/Profile.svg',
-                        height: _currentindex == 3 ? 35 : 28,
-                        width: _currentindex == 3 ? 35 : 28,
-                        colorFilter: ColorFilter.mode(
-                          _currentindex == 3
-                              ? Colors.green
-                              : (isDarkMode
-                                    ? Colors.grey[400]!
-                                    : Colors.grey[600]!),
-                          BlendMode.srcIn,
-                        ),
+                    icon: SvgPicture.asset(
+                      'Assest/Vectors/Profile.svg',
+                      height: _currentindex == 3 ? 35 : 28,
+                      width: _currentindex == 3 ? 35 : 28,
+                      colorFilter: ColorFilter.mode(
+                        _currentindex == 3
+                            ? Colors.green
+                            : (isDarkMode
+                                  ? Colors.grey[400]!
+                                  : Colors.grey[600]!),
+                        BlendMode.srcIn,
                       ),
                     ),
                     label: '',

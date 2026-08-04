@@ -16,55 +16,57 @@ class Catogriesalbum extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 24),
+      padding: const EdgeInsets.only(left: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 185,
+            height: 180,
             width: 185,
             child: Stack(
+              clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
                 // 1. الكونتينر الأسود الخلفي
                 Positioned(
-                  right: 10,
-                  top: 10,
-                  child: Container(
-                    height: 160,
-                    width: 160,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? const Color(0xFF1C1B1B) // لون في الوضع الداكن
-                          : const Color(0xFFE0E0E0), // لون في الوضع الفاتح
+                  left:
+                      60, // اجعله يلتصق باليمين أو يتحرك للداخل قليلاً حسب رغبتك
+                  top: 0,
+                  bottom: 0,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      height: 150,
+                      width: 150, // مساواة العرض والارتفاع لضمان شكل الدائرة
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle, // جعل الشكل دائرياً
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF1C1B1B)
+                            : const Color(0xFF1C1B1B),
+                      ),
                     ),
                   ),
                 ),
 
                 // 2. صورة الألبوم الرئيسية في المقدمة
-                Positioned(
-                  left: 5,
-                  bottom: 5,
-                  child: Container(
-                    height: 160,
-                    width: 160,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      image: DecorationImage(
-                        // تم تصحيح طريقة استدعاء مسار الصورة
-                        image: AssetImage(Photo),
-                        fit: BoxFit.cover,
-                      ),
+                Container(
+                  height: 160,
+                  width: 175,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    image: DecorationImage(
+                      // تم تصحيح طريقة استدعاء مسار الصورة
+                      image: AssetImage(Photo),
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 0),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

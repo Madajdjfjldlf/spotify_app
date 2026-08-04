@@ -65,6 +65,13 @@ class _BottombarState extends State<Bottombar> {
                     ? const Color(0xFF181818).withOpacity(0.85)
                     : Colors.white.withOpacity(0.85),
                 borderRadius: BorderRadius.circular(30),
+                // اللمسة المضافة: إطار شفاف جداً لإبراز تأثير الزجاج بشكل احترافي
+                border: Border.all(
+                  color: isDarkMode
+                      ? Colors.white.withOpacity(0.08)
+                      : Colors.black.withOpacity(0.05),
+                  width: 0.5,
+                ),
               ),
               child: BottomNavigationBar(
                 currentIndex: _currentindex,

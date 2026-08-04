@@ -28,7 +28,6 @@ class RegisterPage extends StatelessWidget {
               _Support(context),
               SizedBox(height: 40),
 
-              // استخدام TextField الحقيقي بدلاً من TextButton لتجنب المشاكل
               _fullname(context),
               SizedBox(height: 16),
               _Email(context),

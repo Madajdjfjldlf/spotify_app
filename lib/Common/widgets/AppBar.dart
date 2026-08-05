@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:spotify/Common/Helpers/is_dark.dart';
+import 'package:spotify/Pages/AppPages/SettingPage/SettingPage.dart';
 
 class BasicAppBar extends StatelessWidget implements PreferredSizeWidget {
   const BasicAppBar({
@@ -70,7 +71,16 @@ class BasicAppBar extends StatelessWidget implements PreferredSizeWidget {
         actions: [
           hidarrow
               ? IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return SettingPage();
+                        },
+                      ),
+                    );
+                  },
                   icon: Icon(
                     Icons.more_vert,
                     color: context.isDarkMode ? Colors.white : Colors.black,

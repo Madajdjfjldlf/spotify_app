@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:spotify/Common/Helpers/is_dark.dart';
 import 'package:spotify/Pages/AppPages/MusicPage/NowplayingPage.dart';
+import 'package:spotify/Pages/AppPages/MusicPage/Nowplayingpage.dart';
+import 'package:spotify/Pages/AppPages/homepage/Home.dart';
 import 'package:spotify/ThemApp.dart/App_Color.dart';
 
 class CdWidget extends StatefulWidget {
@@ -79,7 +81,7 @@ class _CdWidgetState extends State<CdWidget>
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Nowplayingpage()),
+      MaterialPageRoute(builder: (context) => HomeScreen()),
     );
   }
 

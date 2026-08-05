@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:spotify/Pages/AppPages/homepage/Home.dart';
+import 'package:spotify/Pages/AppPages/homepage/Homepage.dart';
+
 import 'package:spotify/Pages/ChooseMode/bloc/Them_Cubit.dart';
 import 'package:spotify/Pages/Splash_pages/SplashPage.dart';
+
 import 'package:spotify/ThemApp.dart/App_Them.dart';
 
 void main() async {

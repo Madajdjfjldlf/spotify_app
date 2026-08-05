@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:spotify/Common/widgets/buttom/buttom_normal.dart';
-import 'package:spotify/Pages/ChooseMode/DarkAndWhite.dart';
 import 'package:spotify/Pages/ChooseMode/bloc/Them_Cubit.dart';
 import 'package:spotify/Pages/Register/signup_login.dart';
 import 'package:spotify/ThemApp.dart/App_Color.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spotify/Pages/AppPages/MusicPage/NowplayingPage.dart';
+import 'package:spotify/Pages/AppPages/MusicPage/Nowplayingpage.dart';
 
 class Catogriesalbum extends StatefulWidget {
   const Catogriesalbum({
@@ -9,7 +9,7 @@ class Catogriesalbum extends StatefulWidget {
     required this.Subtitle,
   });
 
-  final String Photo;
+  final String Photo; // الآن هو رابط URL وليس مسار محلي
   final String Title;
   final String Subtitle;
 
@@ -25,7 +25,6 @@ class _CatogriesalbumState extends State<Catogriesalbum>
   @override
   void initState() {
     super.initState();
-
     _spinController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 5),
@@ -38,18 +37,12 @@ class _CatogriesalbumState extends State<Catogriesalbum>
     super.dispose();
   }
 
-  /// 👇 ضغط (حتى لو خفيف)
   Future<void> _onTap() async {
     setState(() => _isPressed = true);
-
     await Future.delayed(const Duration(milliseconds: 120));
-
     setState(() => _isPressed = false);
-
     await Future.delayed(const Duration(milliseconds: 120));
-
     if (!mounted) return;
-
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Nowplayingpage()),
@@ -96,7 +89,7 @@ class _CatogriesalbumState extends State<Catogriesalbum>
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
-                                  image: AssetImage(widget.Photo),
+                                  image: NetworkImage(widget.Photo), // ✅ تغيير
                                   fit: BoxFit.cover,
                                 ),
                                 border: Border.all(
@@ -123,24 +116,32 @@ class _CatogriesalbumState extends State<Catogriesalbum>
                     ),
                   ),
 
-                  /// 🎵 الغلاف
+                  /// 🎵 الغلاف (الصورة الكبيرة)
                   Container(
                     height: 160,
                     width: 160,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(30),
                       image: DecorationImage(
-                        image: AssetImage(widget.Photo),
+                        image: NetworkImage(widget.Photo), // ✅ تغيير
                         fit: BoxFit.cover,
                       ),
                     ),
+                    // إذا فشل تحميل الصورة نعرض أيقونة افتراضية
+                    child: widget.Photo.isEmpty
+                        ? Container(
+                            color: Colors.grey[800],
+                            child: const Icon(
+                              Icons.album,
+                              color: Colors.white54,
+                            ),
+                          )
+                        : null,
                   ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 12),
-
+            const SizedBox(height: 3),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Column(
@@ -172,7 +173,7 @@ class _CatogriesalbumState extends State<Catogriesalbum>
   }
 }
 
-/// 🎼 رسم القرص
+/// 🎼 رسم القرص (بدون تغيير)
 class _VinylPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:spotify/Pages/AppPages/homepage/PlayList/FavoritBottom.dart';
 
 class Publiccatogrie extends StatelessWidget {
   const Publiccatogrie(
@@ -64,13 +65,10 @@ class Publiccatogrie extends StatelessWidget {
             Time,
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 32),
 
           // 4. زر المفضلة
-          IconButton(
-            onPressed: () {},
-            icon: SvgPicture.asset('Assest/Vectors/Favorit.svg'),
-          ),
+          FavoriteIcon(),
         ],
       ),
     );

@@ -3,7 +3,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:spotify/Common/widgets/AppBar.dart';
 import 'package:spotify/Pages/AppPages/Library/CatogriesAlbum/CatogriesAlbumView.dart';
 import 'package:spotify/Pages/AppPages/Library/CdMusic/CdMusicView.dart';
-import 'package:spotify/Pages/AppPages/Library/CdMusic/Cdmusic.dart';
 
 class Librarypage extends StatelessWidget {
   const Librarypage({super.key});

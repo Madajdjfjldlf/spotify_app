@@ -21,9 +21,9 @@ class Catogriesalbumview extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(right: 35),
             child: Catogriesalbum(
-              Photo: albuminfo['photo']!,
-              Title: albuminfo['Title']!,
-              Subtitle: albuminfo['Subtitle']!,
+              Photo: albuminfo['photo'] ?? albuminfo['imageUrl'] ?? '',
+              Title: albuminfo['Title'] ?? 'ألبوم',
+              Subtitle: albuminfo['Subtitle'] ?? 'فنان',
             ),
           );
         },

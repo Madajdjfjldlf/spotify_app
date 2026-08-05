@@ -1,39 +1,138 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:spotify/Pages/AppPages/MusicPage/NowplayingPage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:spotify/Pages/AppPages/MusicPage/Nowplayingpage.dart';
 
-class NewsList extends StatelessWidget {
+class NewsList extends StatefulWidget {
   const NewsList({super.key});
 
   @override
+  State<NewsList> createState() => _NewsListState();
+}
+
+class _NewsListState extends State<NewsList> {
+  List<Map<String, String>> items = [];
+  bool isLoading = true;
+  String? errorMessage;
+
+  Future<void> fetchLatestSongs() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    const String playlistId = '3155776842';
+    const String url = 'https://api.deezer.com/playlist/$playlistId/tracks';
+
+    try {
+      final response = await http
+          .get(Uri.parse(url))
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List tracks = data['data'] ?? [];
+
+        if (tracks.isEmpty) {
+          errorMessage = 'لا توجد أغاني حالياً';
+        } else {
+          items = tracks.map<Map<String, String>>((track) {
+            final title = (track['title'] ?? '').toString();
+            final artist = (track['artist']?['name'] ?? '').toString();
+            final imageUrl = track['album']?['cover_medium'] ?? '';
+            final preview = track['preview'] ?? ''; // ✅ إضافة preview
+            return {
+              'title': title,
+              'subtitle': artist,
+              'image': imageUrl,
+              'preview': preview, // ✅
+            };
+          }).toList();
+
+          items.shuffle();
+        }
+      } else {
+        errorMessage = 'خطأ في الخادم (${response.statusCode})';
+      }
+    } catch (e) {
+      debugPrint('Error fetching songs: $e');
+      errorMessage = 'فشل الاتصال بالإنترنت';
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLatestSongs();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // بيانات تجريبية
-    final List<Map<String, String>> items = [
-      {
-        'title': 'Bad Guy',
-        'subtitle': 'Billie Eilish',
-        'image': 'Assest/Images/Songs/SongNewsFirst.jpg',
-      },
-      {
-        'title': 'Scorpion',
-        'subtitle': 'Drake',
-        'image': 'Assest/Images/Songs/SongNewsSecond.jpg',
-      },
-      {
-        'title': 'WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?',
-        'subtitle': 'Billie Eilish',
-        'image': 'Assest/Images/Songs/SongNewsthree.jpg',
-      },
-    ];
+    if (isLoading) {
+      return const SizedBox(
+        height: 240,
+        child: Center(
+          child: CircularProgressIndicator(color: Color(0xFF1DB954)),
+        ),
+      );
+    }
+
+    if (errorMessage != null) {
+      return SizedBox(
+        height: 240,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white54, size: 40),
+              const SizedBox(height: 8),
+              Text(
+                errorMessage!,
+                style: const TextStyle(color: Colors.white54),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: fetchLatestSongs,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1DB954),
+                  foregroundColor: Colors.black,
+                ),
+                child: const Text('إعادة المحاولة'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (items.isEmpty) {
+      return const SizedBox(
+        height: 240,
+        child: Center(
+          child: Text(
+            'لا توجد أغاني لعرضها',
+            style: TextStyle(color: Colors.white54),
+          ),
+        ),
+      );
+    }
 
     return SizedBox(
       height: 240,
       child: ListView.builder(
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
         itemCount: items.length,
         padding: const EdgeInsets.only(left: 24),
         itemBuilder: (context, index) {
+          final song = items[index];
           return Container(
             width: 160,
             margin: const EdgeInsets.only(right: 16),
@@ -49,9 +148,12 @@ class NewsList extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) {
-                                return Nowplayingpage();
-                              },
+                              builder: (context) => Nowplayingpage(
+                                title: song['title'],
+                                artist: song['subtitle'],
+                                imageUrl: song['image'],
+                                previewUrl: song['preview'], // ✅ تمرير preview
+                              ),
                             ),
                           );
                         },
@@ -59,7 +161,7 @@ class NewsList extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             image: DecorationImage(
-                              image: AssetImage(items[index]['image']!),
+                              image: NetworkImage(song['image']!),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -69,7 +171,7 @@ class NewsList extends StatelessWidget {
                         bottom: -10,
                         right: 5,
                         child: Container(
-                          height: 35, // تكبير الزر قليلاً ليتطابق مع الصورة
+                          height: 35,
                           width: 35,
                           decoration: const BoxDecoration(
                             color: Colors.white,
@@ -86,7 +188,7 @@ class NewsList extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  items[index]['title']!,
+                  song['title']!,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -96,7 +198,7 @@ class NewsList extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  items[index]['subtitle']!,
+                  song['subtitle']!,
                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

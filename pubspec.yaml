@@ -40,6 +40,9 @@ dependencies:
   path_provider: ^2.1.6
   animations: ^2.0.8
   flutter_launcher_icons: ^0.14.4
+  dio: ^5.9.0
+  http: ^1.2.0
+  just_audio: ^0.9.36
 
 dev_dependencies:
   flutter_test:

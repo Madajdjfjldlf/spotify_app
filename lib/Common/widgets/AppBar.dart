@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:spotify/Common/Helpers/is_dark.dart';
+import 'package:spotify/Pages/AppPages/Search/SearchPage.dart';
+import 'package:spotify/Pages/AppPages/Search/browse_page.dart';
 import 'package:spotify/Pages/AppPages/SettingPage/SettingPage.dart';
+import 'package:spotify/Pages/AppPages/SettingPage/SettingPages.dart';
 
 class BasicAppBar extends StatelessWidget implements PreferredSizeWidget {
   const BasicAppBar({
@@ -31,7 +34,16 @@ class BasicAppBar extends StatelessWidget implements PreferredSizeWidget {
         // إذا كان السهم مخفياً (hidarrow = true)، يظهر زر البحث (Search) هنا.
         leading: hidarrow
             ? IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return SearchPage();
+                      },
+                    ),
+                  );
+                },
                 icon: SvgPicture.asset(
                   'Assest/Vectors/Search 3.svg',
                   color: context.isDarkMode ? Colors.white : Colors.black,

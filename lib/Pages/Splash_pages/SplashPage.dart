@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:spotify/Pages/Intro%20Pages/GetStatedPage.dart';
-// قم باستيراد الصفحة التي تريد الانتقال إليها هنا
-// import 'home_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -16,7 +14,7 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
 
-    // تأخير لمدة ثانيتين ثم الانتقال
+    // ✅ تأخير بسيط ثم الانتقال (بدون تحميل بيانات)
     Future.delayed(const Duration(seconds: 2), () {
       if (!mounted) return;
 
@@ -39,7 +37,24 @@ class _SplashPageState extends State<SplashPage> {
       body: MediaQuery.removePadding(
         context: context,
         removeTop: true,
-        child: Center(child: SvgPicture.asset('Assest/Vectors/Logo.svg')),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset('Assest/Vectors/Logo.svg', height: 100),
+              const SizedBox(height: 30),
+              const CircularProgressIndicator(
+                color: Color(0xFF1DB954),
+                strokeWidth: 3,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'جاري التحميل...',
+                style: TextStyle(color: Colors.white54, fontSize: 14),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

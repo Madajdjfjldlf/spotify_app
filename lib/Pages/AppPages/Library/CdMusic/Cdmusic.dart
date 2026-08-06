@@ -2,17 +2,24 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:spotify/Common/Helpers/is_dark.dart';
-import 'package:spotify/Pages/AppPages/MusicPage/NowplayingPage.dart';
 import 'package:spotify/Pages/AppPages/MusicPage/Nowplayingpage.dart';
-import 'package:spotify/Pages/AppPages/homepage/Home.dart';
 import 'package:spotify/ThemApp.dart/App_Color.dart';
 
 class CdWidget extends StatefulWidget {
-  final String imagePath;
+  final String imageUrl;
+  final String title;
+  final String artist;
   final double size;
+  final String previewUrl;
 
-  const CdWidget({Key? key, required this.imagePath, this.size = 150})
-    : super(key: key);
+  const CdWidget({
+    Key? key,
+    required this.imageUrl,
+    required this.title,
+    required this.artist,
+    this.size = 150,
+    required this.previewUrl,
+  }) : super(key: key);
 
   @override
   State<CdWidget> createState() => _CdWidgetState();
@@ -33,7 +40,7 @@ class _CdWidgetState extends State<CdWidget>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 6), // سرعة طبيعية
+      duration: const Duration(seconds: 6),
     )..repeat();
   }
 
@@ -44,31 +51,22 @@ class _CdWidgetState extends State<CdWidget>
     super.dispose();
   }
 
-  /// 👇 عند الضغط
   void _onTapDown(_) {
     setState(() {
       tiltX = 0.02;
       tiltY = -0.02;
-
-      // 🚀 تسريع
       _controller.duration = const Duration(milliseconds: 900);
       _controller.repeat();
     });
 
-    // ⏳ بعد شوي يرجع طبيعي أو يوقف
     _timer?.cancel();
     _timer = Timer(const Duration(milliseconds: 700), () {
       if (!mounted) return;
-
       _controller.duration = const Duration(seconds: 6);
-      _controller.repeat(); // رجوع للسرعة الطبيعية
-
-      // لو تريده يوقف بدل يرجع:
-      // _controller.stop();
+      _controller.repeat();
     });
   }
 
-  /// 👇 عند رفع الإصبع → انتقال
   void _onTapUp(_) async {
     setState(() {
       tiltX = 0;
@@ -76,12 +74,19 @@ class _CdWidgetState extends State<CdWidget>
     });
 
     await Future.delayed(const Duration(milliseconds: 300));
-
     if (!mounted) return;
 
+    // ✅ الانتقال إلى Nowplayingpage مع تمرير جميع البيانات
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
+      MaterialPageRoute(
+        builder: (context) => Nowplayingpage(
+          title: widget.title,
+          artist: widget.artist,
+          imageUrl: widget.imageUrl,
+          previewUrl: widget.previewUrl, // ✅ تمرير preview
+        ),
+      ),
     );
   }
 
@@ -114,13 +119,13 @@ class _CdWidgetState extends State<CdWidget>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
-                      image: AssetImage(widget.imagePath),
+                      image: NetworkImage(widget.imageUrl),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
 
-                /// 🌑 Gradient احترافي
+                /// 🌑 Gradient
                 Container(
                   width: size,
                   height: size,
@@ -153,7 +158,7 @@ class _CdWidgetState extends State<CdWidget>
                   ),
                 ),
 
-                /// 🔲 QR بدل الشعار
+                /// 🎵 شعار
                 Positioned(
                   top: 20,
                   left: 40,

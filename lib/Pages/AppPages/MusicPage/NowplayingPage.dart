@@ -5,7 +5,7 @@ import 'package:spotify/Pages/AppPages/MusicPage/ArtistSOngList.dart';
 import 'package:spotify/Pages/AppPages/MusicPage/optionplaymusic.dart';
 import 'package:spotify/ThemApp.dart/App_COlor.dart';
 import 'package:spotify/Pages/AppPages/Library/CatogriesAlbum/CatogriesAlbumView.dart';
-import 'package:just_audio/just_audio.dart'; // ✅ تغيير المكتبة
+import 'package:just_audio/just_audio.dart';
 
 class Nowplayingpage extends StatefulWidget {
   final String? title;
@@ -26,7 +26,7 @@ class Nowplayingpage extends StatefulWidget {
 }
 
 class _NowplayingpageState extends State<Nowplayingpage> {
-  AudioPlayer? _audioPlayer; // من just_audio
+  AudioPlayer? _audioPlayer;
   bool isPlaying = false;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
@@ -35,6 +35,13 @@ class _NowplayingpageState extends State<Nowplayingpage> {
   List<Map<String, String>> albums = [];
   String? _errorMessage;
   bool _isAudioInitialized = false;
+
+  // لون Spotify الأخضر
+  static const Color spotifyGreen = Color(0xFF1DB954);
+
+  // التحكم بسحب شريط الصوت
+  bool _isDraggingSlider = false;
+  double _dragValue = 0.0;
 
   List<Map<String, String>> currentPlaylist = [];
   int currentIndex = 0;
@@ -49,21 +56,21 @@ class _NowplayingpageState extends State<Nowplayingpage> {
     try {
       _audioPlayer = AudioPlayer();
 
-      // ✅ استمع لتحديثات الوقت (بدلاً من onPositionChanged)
       _audioPlayer!.positionStream.listen((p) {
-        if (mounted) setState(() => _position = p);
+        if (mounted && !_isDraggingSlider) {
+          setState(() => _position = p);
+        }
       });
 
-      // ✅ استمع لتحديثات المدة
       _audioPlayer!.durationStream.listen((d) {
-        if (d != null && mounted) setState(() => _duration = d);
+        if (d != null && mounted) {
+          setState(() => _duration = d);
+        }
       });
 
-      // ✅ استمع لحالة المشغل لتحديث isPlaying تلقائياً
       _audioPlayer!.playerStateStream.listen((state) {
         if (mounted) {
           final playing = state.playing;
-          // عند انتهاء الأغنية (ProcessingState.completed) وليس loop
           if (state.processingState == ProcessingState.completed &&
               !isLooping) {
             _playNext();
@@ -74,12 +81,13 @@ class _NowplayingpageState extends State<Nowplayingpage> {
         }
       });
 
-      // ✅ محاولة تشغيل الصوت
       await _playCurrentSong();
     } catch (e) {
-      setState(() {
-        _errorMessage = 'فشل تهيئة مشغل الصوت: $e';
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'فشل تهيئة مشغل الصوت: $e';
+        });
+      }
       debugPrint('Audio init error: $e');
     }
   }
@@ -97,8 +105,8 @@ class _NowplayingpageState extends State<Nowplayingpage> {
     }
 
     try {
-      await _audioPlayer!.setUrl(url); // ✅ setUrl بدلاً من setSourceUrl
-      await _audioPlayer!.play(); // ✅ play بدلاً من resume
+      await _audioPlayer!.setUrl(url);
+      await _audioPlayer!.play();
 
       if (mounted) {
         setState(() {
@@ -108,15 +116,17 @@ class _NowplayingpageState extends State<Nowplayingpage> {
         });
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = '⚠️ حدث خطأ أثناء التشغيل';
-        _isAudioInitialized = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = '⚠️ حدث خطأ أثناء التشغيل';
+          _isAudioInitialized = false;
+        });
+      }
       debugPrint('Play error: $e');
     }
   }
 
-  void _togglePlayPause() {
+  void _togglePlayPause() async {
     if (_audioPlayer == null || !_isAudioInitialized) {
       setState(() {
         _errorMessage = '⚠️ الصوت غير جاهز للتشغيل';
@@ -125,12 +135,11 @@ class _NowplayingpageState extends State<Nowplayingpage> {
     }
 
     try {
-      if (isPlaying) {
-        _audioPlayer!.pause();
+      if (_audioPlayer!.playing) {
+        await _audioPlayer!.pause();
       } else {
-        _audioPlayer!.play();
+        await _audioPlayer!.play();
       }
-      // الحالة ستُحدث تلقائياً من خلال playerStateStream
     } catch (e) {
       setState(() {
         _errorMessage = '⚠️ خطأ في التحكم بالصوت';
@@ -169,10 +178,12 @@ class _NowplayingpageState extends State<Nowplayingpage> {
         });
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = '⚠️ فشل تشغيل الأغنية';
-        _isAudioInitialized = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = '⚠️ فشل تشغيل الأغنية';
+          _isAudioInitialized = false;
+        });
+      }
       debugPrint('Play song error: $e');
     }
   }
@@ -222,24 +233,24 @@ class _NowplayingpageState extends State<Nowplayingpage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 0),
+              const SizedBox(height: 10),
               _songPhoto(context, imageUrl: widget.imageUrl),
               Transform.translate(
-                offset: const Offset(0, -0),
+                offset: const Offset(0, 0),
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
                     _textSong(title: widget.title, artist: widget.artist),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     if (_errorMessage != null)
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 20),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.1),
+                          color: Colors.red.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.red.withOpacity(0.3),
+                            color: Colors.red.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Text(
@@ -254,16 +265,27 @@ class _NowplayingpageState extends State<Nowplayingpage> {
                       ),
                     const SizedBox(height: 10),
                     _songPlayerBar(
-                      position: _position,
+                      position: _isDraggingSlider
+                          ? Duration(seconds: _dragValue.toInt())
+                          : _position,
                       duration: _duration,
+                      isEnabled: _isAudioInitialized,
                       onChanged: (value) {
+                        setState(() {
+                          _isDraggingSlider = true;
+                          _dragValue = value;
+                        });
+                      },
+                      onChangeEnd: (value) {
                         if (_isAudioInitialized && _audioPlayer != null) {
                           _audioPlayer!.seek(Duration(seconds: value.toInt()));
                         }
+                        setState(() {
+                          _isDraggingSlider = false;
+                        });
                       },
-                      isEnabled: _isAudioInitialized,
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 20),
                     _optionSong(
                       context,
                       isPlaying: isPlaying,
@@ -276,7 +298,7 @@ class _NowplayingpageState extends State<Nowplayingpage> {
                       isShuffled: isShuffled,
                       hasError: _errorMessage != null || !_isAudioInitialized,
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
                     _songsetting(context),
                     const SizedBox(height: 20),
                     _OfMusical(),
@@ -305,9 +327,9 @@ class _NowplayingpageState extends State<Nowplayingpage> {
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Align(
                           alignment: Alignment.bottomLeft,
-                          child: Text(
+                          child: const Text(
                             'Albums',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                             ),
@@ -327,21 +349,195 @@ class _NowplayingpageState extends State<Nowplayingpage> {
       ),
     );
   }
-}
 
-// ========== دوال مساعدة (نفسها دون تغيير) ==========
+  Widget _songPlayerBar({
+    required Duration position,
+    required Duration duration,
+    required ValueChanged<double> onChanged,
+    required ValueChanged<double> onChangeEnd,
+    required bool isEnabled,
+  }) {
+    final maxValue = duration.inSeconds.toDouble() > 0
+        ? duration.inSeconds.toDouble()
+        : 1.0;
+    final currentValue = position.inSeconds.toDouble().clamp(0.0, maxValue);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 3.5,
+              activeTrackColor: isEnabled ? spotifyGreen : Colors.grey,
+              inactiveTrackColor: Colors.grey.shade800,
+              thumbColor: Colors.white,
+              overlayColor: spotifyGreen.withValues(alpha: 0.2),
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6.0),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 14.0),
+            ),
+            child: Slider(
+              value: currentValue,
+              min: 0.0,
+              max: maxValue,
+              onChanged: isEnabled ? onChanged : null,
+              onChangeEnd: isEnabled ? onChangeEnd : null,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _formatDuration(position),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  _formatDuration(duration),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _optionSong(
+    BuildContext context, {
+    required bool isPlaying,
+    required VoidCallback onPlayPause,
+    required VoidCallback onNext,
+    required VoidCallback onPrevious,
+    required VoidCallback onLoop,
+    required VoidCallback onShuffle,
+    required bool isLooping,
+    required bool isShuffled,
+    required bool hasError,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          IconButton(
+            onPressed: hasError ? null : onLoop,
+            icon: SvgPicture.asset(
+              isLooping
+                  ? 'Assest/Vectors/LoopActive.svg'
+                  : 'Assest/Vectors/Spam.svg',
+              height: 20,
+              width: 20,
+              colorFilter: ColorFilter.mode(
+                isLooping
+                    ? spotifyGreen
+                    : (Theme.of(context).brightness == Brightness.dark
+                          ? Appcolor.Grey
+                          : Appcolor.DarkGrey),
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: hasError ? null : onPrevious,
+            icon: SvgPicture.asset(
+              'Assest/Vectors/Previous.svg',
+              height: 22,
+              width: 22,
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Appcolor.Grey
+                    : Appcolor.DarkGrey,
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: hasError ? null : onPlayPause,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 64,
+              width: 64,
+              decoration: BoxDecoration(
+                color: hasError ? Colors.grey.shade600 : spotifyGreen,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: spotifyGreen.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Icon(
+                  isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                  color: Colors.black,
+                  size: 38,
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: hasError ? null : onNext,
+            icon: SvgPicture.asset(
+              'Assest/Vectors/Next.svg',
+              height: 22,
+              width: 22,
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Appcolor.Grey
+                    : Appcolor.DarkGrey,
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: hasError ? null : onShuffle,
+            icon: SvgPicture.asset(
+              isShuffled
+                  ? 'Assest/Vectors/ShuffleActive.svg'
+                  : 'Assest/Vectors/Shuffle 2.svg',
+              height: 20,
+              width: 20,
+              colorFilter: ColorFilter.mode(
+                isShuffled
+                    ? spotifyGreen
+                    : (Theme.of(context).brightness == Brightness.dark
+                          ? Appcolor.Grey
+                          : Appcolor.DarkGrey),
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 Widget _songPhoto(BuildContext context, {String? imageUrl}) {
   return Container(
-    height: 450,
-    width: 370,
+    height: 400,
+    width: 340,
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(20),
+
       image: DecorationImage(
         image: (imageUrl != null && imageUrl.isNotEmpty)
             ? NetworkImage(imageUrl)
             : const AssetImage('Assest/Images/NowPlaying.png') as ImageProvider,
-        fit: BoxFit.fill,
+        fit: BoxFit.cover,
       ),
     ),
   );
@@ -349,12 +545,11 @@ Widget _songPhoto(BuildContext context, {String? imageUrl}) {
 
 Widget _textSong({String? title, String? artist}) {
   return Padding(
-    padding: const EdgeInsets.only(right: 30, left: 30),
+    padding: const EdgeInsets.symmetric(horizontal: 30),
     child: Row(
       children: [
         Expanded(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -370,7 +565,7 @@ Widget _textSong({String? title, String? artist}) {
               Text(
                 artist ?? 'Billie Eilish',
                 style: const TextStyle(
-                  fontSize: 17,
+                  fontSize: 16,
                   color: Colors.grey,
                   fontWeight: FontWeight.w400,
                 ),
@@ -384,51 +579,8 @@ Widget _textSong({String? title, String? artist}) {
           onPressed: () {},
           icon: SvgPicture.asset(
             'Assest/Vectors/Heart.svg',
-            height: 26,
-            width: 26,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _songPlayerBar({
-  required Duration position,
-  required Duration duration,
-  required ValueChanged<double> onChanged,
-  required bool isEnabled,
-}) {
-  final maxValue = duration.inSeconds.toDouble() > 0
-      ? duration.inSeconds.toDouble()
-      : 1.0;
-
-  return Padding(
-    padding: const EdgeInsets.only(right: 20, left: 20),
-    child: Column(
-      children: [
-        Slider(
-          value: position.inSeconds.toDouble().clamp(0, maxValue),
-          min: 0.0,
-          max: maxValue,
-          activeColor: isEnabled ? Colors.black : Colors.grey,
-          inactiveColor: Colors.grey.shade300,
-          onChanged: isEnabled ? onChanged : null,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _formatDuration(position),
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              Text(
-                _formatDuration(duration),
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
+            height: 24,
+            width: 24,
           ),
         ),
       ],
@@ -440,97 +592,6 @@ String _formatDuration(Duration d) {
   final minutes = d.inMinutes.remainder(60);
   final seconds = d.inSeconds.remainder(60);
   return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-}
-
-Widget _optionSong(
-  BuildContext context, {
-  required bool isPlaying,
-  required VoidCallback onPlayPause,
-  required VoidCallback onNext,
-  required VoidCallback onPrevious,
-  required VoidCallback onLoop,
-  required VoidCallback onShuffle,
-  required bool isLooping,
-  required bool isShuffled,
-  required bool hasError,
-}) {
-  return Padding(
-    padding: const EdgeInsets.only(right: 10, left: 10),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        IconButton(
-          onPressed: hasError ? null : onLoop,
-          icon: SvgPicture.asset(
-            isLooping
-                ? 'Assest/Vectors/LoopActive.svg'
-                : 'Assest/Vectors/Spam.svg',
-            height: 20,
-            width: 20,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Appcolor.Grey
-                : Appcolor.DarkGrey,
-          ),
-        ),
-        IconButton(
-          onPressed: hasError ? null : onPrevious,
-          icon: SvgPicture.asset(
-            'Assest/Vectors/Previous.svg',
-            height: 20,
-            width: 20,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Appcolor.Grey
-                : Appcolor.DarkGrey,
-          ),
-        ),
-        GestureDetector(
-          onTap: hasError ? null : onPlayPause,
-          child: Container(
-            height: 72,
-            width: 72,
-            decoration: BoxDecoration(
-              color: hasError ? Colors.grey : Appcolor.Primary,
-              borderRadius: BorderRadius.circular(40),
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                isPlaying
-                    ? 'Assest/Vectors/Pause.svg'
-                    : 'Assest/Vectors/Play.svg',
-                height: 30,
-                width: 30,
-                fit: BoxFit.none,
-              ),
-            ),
-          ),
-        ),
-        IconButton(
-          onPressed: hasError ? null : onNext,
-          icon: SvgPicture.asset(
-            'Assest/Vectors/Next.svg',
-            height: 20,
-            width: 20,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Appcolor.Grey
-                : Appcolor.DarkGrey,
-          ),
-        ),
-        IconButton(
-          onPressed: hasError ? null : onShuffle,
-          icon: SvgPicture.asset(
-            isShuffled
-                ? 'Assest/Vectors/ShuffleActive.svg'
-                : 'Assest/Vectors/Shuffle 2.svg',
-            height: 20,
-            width: 20,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Appcolor.Grey
-                : Appcolor.DarkGrey,
-          ),
-        ),
-      ],
-    ),
-  );
 }
 
 Widget _songsetting(BuildContext context) {
@@ -554,9 +615,12 @@ Widget _songsetting(BuildContext context) {
           onPressed: () {},
           icon: SvgPicture.asset(
             'Assest/Vectors/playListIcon.svg',
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Appcolor.Grey
-                : Appcolor.DarkGrey,
+            colorFilter: ColorFilter.mode(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Appcolor.Grey
+                  : Appcolor.DarkGrey,
+              BlendMode.srcIn,
+            ),
           ),
         ),
         const SizedBox(width: 2),
@@ -564,9 +628,12 @@ Widget _songsetting(BuildContext context) {
           onPressed: () {},
           icon: SvgPicture.asset(
             'Assest/Vectors/Share.svg',
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Appcolor.Grey
-                : Appcolor.DarkGrey,
+            colorFilter: ColorFilter.mode(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Appcolor.Grey
+                  : Appcolor.DarkGrey,
+              BlendMode.srcIn,
+            ),
           ),
         ),
       ],
@@ -575,11 +642,11 @@ Widget _songsetting(BuildContext context) {
 }
 
 Widget _OfMusical() {
-  return Align(
+  return const Align(
     alignment: Alignment.center,
     child: Text(
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Turpis adipiscing vestibulum orci enim, nascetur vitae ',
-      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
       textAlign: TextAlign.center,
     ),
   );

@@ -7,11 +7,17 @@ class Catogriesalbum extends StatefulWidget {
     required this.Photo,
     required this.Title,
     required this.Subtitle,
+    this.previewUrl,
+    this.songTitle,
+    this.artistName,
   });
 
-  final String Photo; // الآن هو رابط URL وليس مسار محلي
+  final String Photo;
   final String Title;
   final String Subtitle;
+  final String? previewUrl;
+  final String? songTitle;
+  final String? artistName;
 
   @override
   State<Catogriesalbum> createState() => _CatogriesalbumState();
@@ -37,15 +43,32 @@ class _CatogriesalbumState extends State<Catogriesalbum>
     super.dispose();
   }
 
+  ImageProvider _getImageProvider() {
+    final String path = widget.Photo;
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return NetworkImage(path);
+    } else {
+      return AssetImage(path);
+    }
+  }
+
   Future<void> _onTap() async {
     setState(() => _isPressed = true);
     await Future.delayed(const Duration(milliseconds: 120));
     setState(() => _isPressed = false);
     await Future.delayed(const Duration(milliseconds: 120));
     if (!mounted) return;
-    Navigator.push(
+
+    Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => Nowplayingpage()),
+      MaterialPageRoute(
+        builder: (context) => Nowplayingpage(
+          title: widget.songTitle ?? widget.Title,
+          artist: widget.artistName ?? widget.Subtitle,
+          imageUrl: widget.Photo,
+          previewUrl: widget.previewUrl,
+        ),
+      ),
     );
   }
 
@@ -67,7 +90,7 @@ class _CatogriesalbumState extends State<Catogriesalbum>
                 clipBehavior: Clip.none,
                 alignment: Alignment.centerLeft,
                 children: [
-                  /// 🎧 القرص
+                  // 🎧 القرص
                   TweenAnimationBuilder<double>(
                     tween: Tween<double>(begin: 0, end: 85),
                     duration: const Duration(milliseconds: 1000),
@@ -89,7 +112,7 @@ class _CatogriesalbumState extends State<Catogriesalbum>
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
-                                  image: NetworkImage(widget.Photo), // ✅ تغيير
+                                  image: _getImageProvider(),
                                   fit: BoxFit.cover,
                                 ),
                                 border: Border.all(
@@ -115,55 +138,55 @@ class _CatogriesalbumState extends State<Catogriesalbum>
                       ),
                     ),
                   ),
-
-                  /// 🎵 الغلاف (الصورة الكبيرة)
+                  // 🎵 الغلاف
                   Container(
                     height: 160,
                     width: 160,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
                       image: DecorationImage(
-                        image: NetworkImage(widget.Photo), // ✅ تغيير
+                        image: _getImageProvider(),
                         fit: BoxFit.cover,
                       ),
                     ),
-                    // إذا فشل تحميل الصورة نعرض أيقونة افتراضية
-                    child: widget.Photo.isEmpty
-                        ? Container(
-                            color: Colors.grey[800],
-                            child: const Icon(
-                              Icons.album,
-                              color: Colors.white54,
-                            ),
-                          )
-                        : null,
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 3),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.Title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
+            // ✅ تم تغليف النص بـ SizedBox لتحديد العرض وجعل العنوان ينزل لسطر جديد بأسلوب متناسق
+            SizedBox(
+              width:
+                  160, // تحديد العرض بنفس عرض الغلاف لتقسيم الكلمات بشكل مريح
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ✅ Title: سطرين مقسمين بوضوح
+                    Text(
+                      widget.Title,
+                      style: const TextStyle(
+                        fontSize: 15, // حجم يناسب 3-4 كلمات في السطر
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2, // يسمح بسطرين فقط
+                      softWrap: true, // يلتف للسطر الثاني
+                      overflow:
+                          TextOverflow.ellipsis, // يضيف (...) إذا زاد عن سطرين
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    widget.Subtitle,
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.Subtitle,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade400,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -173,7 +196,7 @@ class _CatogriesalbumState extends State<Catogriesalbum>
   }
 }
 
-/// 🎼 رسم القرص (بدون تغيير)
+/// 🎼 رسم القرص
 class _VinylPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

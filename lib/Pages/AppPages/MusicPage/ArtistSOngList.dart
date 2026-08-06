@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:spotify/Pages/AppPages/homepage/PlayList/PlayListwidget.dart';
-import 'package:spotify/Pages/AppPages/MusicPage/Nowplayingpage.dart'; // ✅ استيراد واحد فقط
+import 'package:spotify/Pages/AppPages/MusicPage/Nowplayingpage.dart';
 
 class ArtistSongsList extends StatefulWidget {
   final String artistName;
@@ -57,7 +57,7 @@ class _ArtistSongsListState extends State<ArtistSongsList> {
             final duration = durationRaw is int ? durationRaw : 0;
             final timestr = formatDuration(duration);
             final image = track['album']?['cover_medium'] ?? '';
-            final preview = track['preview'] ?? ''; // ✅ إضافة preview
+            final preview = track['preview'] ?? '';
             final albumTitle = (track['album']?['title'] ?? '').toString();
             final albumImage = track['album']?['cover_medium'] ?? '';
             return {
@@ -65,7 +65,7 @@ class _ArtistSongsListState extends State<ArtistSongsList> {
               'subtitle': artist,
               'Time': timestr,
               'image': image,
-              'preview': preview, // ✅
+              'preview': preview,
               'albumTitle': albumTitle,
               'albumImage': albumImage,
             };
@@ -96,15 +96,16 @@ class _ArtistSongsListState extends State<ArtistSongsList> {
     fetchArtistSongs();
   }
 
+  // ✅ استخدام pushReplacement لإيقاف الأغنية الحالية
   void _navigateToNowPlaying(BuildContext context, Map<String, String> song) {
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => Nowplayingpage(
           title: song['title'],
           artist: song['subtitle'],
           imageUrl: song['image'],
-          previewUrl: song['preview'], // ✅ تمرير preview
+          previewUrl: song['preview'],
         ),
       ),
     );

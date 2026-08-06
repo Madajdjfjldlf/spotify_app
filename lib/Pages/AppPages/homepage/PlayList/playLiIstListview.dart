@@ -87,7 +87,7 @@ class _PlaylistViewState extends State<PlaylistView> {
   }
 
   void _navigateToNowPlaying(BuildContext context, Map<String, String> song) {
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => Nowplayingpage(

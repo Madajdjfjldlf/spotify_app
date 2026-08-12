@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spotify/Pages/AppPages/homepage/PlayList/FavoritBottom.dart';
+import 'package:spotify/Common/widgets/buttom/FavoritBottom.dart';
 
 class Topswidgets extends StatelessWidget {
   const Topswidgets({
@@ -9,6 +9,8 @@ class Topswidgets extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.duration,
+    required this.songId,
+    this.onTap,
   });
 
   final String rank;
@@ -16,8 +18,9 @@ class Topswidgets extends StatelessWidget {
   final String title;
   final String subtitle;
   final String duration;
+  final int songId;
+  final VoidCallback? onTap;
 
-  // ✅ دالة ذكية لتحديد نوع الصورة (شبكة أو محلية)
   ImageProvider _getImageProvider() {
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
       return NetworkImage(imageUrl);
@@ -30,83 +33,100 @@ class Topswidgets extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          // ✅ الرقم الترتيبي
-          SizedBox(
-            width: 24,
-            child: Text(
-              rank,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white60 : Colors.grey,
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-
-          // ✅ صورة الأغنية
-          Container(
-            height: 56,
-            width: 56,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              image: DecorationImage(
-                image: _getImageProvider(),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          // ✅ النصوص (العنوان والفنان)
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: isDark
+              ? []
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 30,
+              child: Container(
+                alignment: Alignment.center,
+                child: Text(
+                  rank,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: rank == '1'
+                        ? const Color(0xFFFFD700)
+                        : rank == '2'
+                        ? const Color(0xFFC0C0C0)
+                        : rank == '3'
+                        ? const Color(0xFFCD7F32)
+                        : (isDark ? Colors.white60 : Colors.grey.shade500),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.white60 : Colors.black54,
+              ),
+            ),
+            const SizedBox(width: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: _getImageProvider(),
+                    fit: BoxFit.cover,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
+              ),
             ),
-          ),
-
-          // ✅ المدة
-          Text(
-            duration,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white60 : Colors.black54,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.white60 : Colors.black54,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-
-          // ✅ زر المفضلة
-          const FavoriteIcon(),
-        ],
+            Text(
+              duration,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white60 : Colors.black54,
+              ),
+            ),
+            const SizedBox(width: 10),
+            FavoriteIcon(songId: songId),
+          ],
+        ),
       ),
     );
   }

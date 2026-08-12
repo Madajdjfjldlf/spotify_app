@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:spotify/Common/Helpers/is_dark.dart';
-import 'package:spotify/Pages/AppPages/homepage/PlayList/FavoritBottom.dart';
+import 'package:spotify/Common/widgets/buttom/FavoritBottom.dart';
 
 class Playlistwidget extends StatelessWidget {
   const Playlistwidget({
@@ -10,15 +10,17 @@ class Playlistwidget extends StatelessWidget {
     required this.title,
     required this.subTitle,
     required this.Time,
+    required this.songId,
     this.onTap,
-    this.onPlayTap, // ✅ دالة جديدة لزر التشغيل
+    this.onPlayTap,
   });
 
   final String title;
   final String subTitle;
   final String Time;
+  final int songId;
   final VoidCallback? onTap;
-  final VoidCallback? onPlayTap; // دالة التشغيل
+  final VoidCallback? onPlayTap;
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +31,8 @@ class Playlistwidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Row(
           children: [
-            // ✅ زر التشغيل (الدائرة)
             GestureDetector(
-              onTap: onPlayTap, // ✅ ربطناها هنا
+              onTap: onPlayTap,
               child: Container(
                 height: 37,
                 width: 37,
@@ -58,8 +59,6 @@ class Playlistwidget extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 25),
-
-            // النصوص
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -87,21 +86,12 @@ class Playlistwidget extends StatelessWidget {
                 ],
               ),
             ),
-
-            // الوقت
             Text(
               Time,
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
             ),
             const SizedBox(width: 32),
-
-            // زر المفضلة (يمنع انتشار الضغط للأب)
-            GestureDetector(
-              onTap: () {
-                // وظيفة المفضلة
-              },
-              child: const FavoriteIcon(),
-            ),
+            FavoriteIcon(songId: songId),
           ],
         ),
       ),

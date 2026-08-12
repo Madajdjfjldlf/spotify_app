@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:spotify/Pages/AppPages/Profile/Favorite%20Music/FavoritemusicView.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spotify/Common/Helpers/is_dark.dart';
 import 'package:spotify/Common/widgets/AppBar.dart';
@@ -146,23 +147,14 @@ class _PrfofilepageState extends State<Prfofilepage> {
                       const SizedBox(height: 30),
 
                       // ─── عنوان Public playlists ───
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Text(
-                          'Public playlists',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: context.isDarkMode
-                                ? Colors.white
-                                : Appcolor.DarkGrey,
-                          ),
-                        ),
-                      ),
-
                       const SizedBox(height: 20),
-
-                      // ─── قائمة الـ Playlists ───
+                      _textSections(
+                        'Favorite Music',
+                        context,
+                        'See all',
+                      ), // ─── قائمة الـ Playlists ───
+                      FavoritemusicView(),
+                      _textSections('public playlist', context, 'See all'),
                       Publiccatogrieview(),
 
                       const SizedBox(height: 160),
@@ -234,4 +226,37 @@ class _PrfofilepageState extends State<Prfofilepage> {
       ),
     );
   }
+}
+
+Widget _textSections(String title, BuildContext context, String other) {
+  // التحقق من وضع الليل بشكل آمن
+  final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 24),
+    child: Row(
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: isDarkMode ? Colors.white : Appcolor.DarkGrey,
+          ),
+        ),
+        const Spacer(),
+        TextButton(
+          onPressed: () {},
+          child: Text(
+            other,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1DB954),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

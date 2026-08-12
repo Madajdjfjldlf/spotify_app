@@ -60,6 +60,7 @@ class _ArtistSongsListState extends State<ArtistSongsList> {
             final preview = track['preview'] ?? '';
             final albumTitle = (track['album']?['title'] ?? '').toString();
             final albumImage = track['album']?['cover_medium'] ?? '';
+            final songId = (track['id']?.toString() ?? '0');
             return {
               'title': title,
               'subtitle': artist,
@@ -68,6 +69,7 @@ class _ArtistSongsListState extends State<ArtistSongsList> {
               'preview': preview,
               'albumTitle': albumTitle,
               'albumImage': albumImage,
+              'songId': songId,
             };
           }).toList();
 
@@ -96,9 +98,8 @@ class _ArtistSongsListState extends State<ArtistSongsList> {
     fetchArtistSongs();
   }
 
-  // ✅ استخدام pushReplacement لإيقاف الأغنية الحالية
   void _navigateToNowPlaying(BuildContext context, Map<String, String> song) {
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Nowplayingpage(
@@ -169,6 +170,7 @@ class _ArtistSongsListState extends State<ArtistSongsList> {
             title: song['title']!,
             subTitle: song['subtitle']!,
             Time: song['Time']!,
+            songId: int.tryParse(song['songId'] ?? '0') ?? 0,
             onTap: () => _navigateToNowPlaying(context, song),
             onPlayTap: () => _navigateToNowPlaying(context, song),
           ),

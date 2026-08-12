@@ -3,16 +3,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class DataService {
-  // ───── البيانات المخزنة ─────
   static List<Map<String, String>>? cachedTracks;
   static List<Map<String, String>>? cachedAlbums;
   static List<Map<String, String>>? cachedArtists;
-  static List<Map<String, String>>?
-  cachedTopSongs; // ✅ الأغاني الأكثر استماعاً (Top 50 Global)
+  static List<Map<String, String>>? cachedTopSongs;
   static bool isLoading = false;
   static String? errorMessage;
 
-  // ───── بيانات احتياطية قوية (10 ألبومات متنوعة) ─────
+  // ───── بيانات احتياطية ─────
   static final List<Map<String, String>> _strongFallback = [
     {
       'photo':
@@ -86,7 +84,7 @@ class DataService {
     },
   ];
 
-  // ───── تحميل جميع البيانات مع تحميل الصور مسبقاً ─────
+  // ───── تحميل جميع البيانات ─────
   static Future<bool> loadAllData([BuildContext? context]) async {
     isLoading = true;
     errorMessage = null;
@@ -98,7 +96,7 @@ class DataService {
         _fetchChartTracks(),
         _fetchMultipleAlbums(),
         _fetchChartArtists(),
-        _fetchTopSongs(), // ✅ جلب الأغاني الأكثر استماعاً
+        _fetchTopSongs(),
       ]);
 
       cachedTracks = results[0];
@@ -134,6 +132,100 @@ class DataService {
     }
   }
 
+  // ───── تحميل الصور مسبقاً ─────
+  static Future<void> _precacheImages(BuildContext context) async {
+    final List<String> imageUrls = [];
+
+    if (cachedTracks != null) {
+      for (var track in cachedTracks!) {
+        final image = track['image'] ?? '';
+        if (image.isNotEmpty && image.startsWith('http')) {
+          imageUrls.add(image);
+        }
+      }
+    }
+
+    if (cachedTopSongs != null) {
+      for (var track in cachedTopSongs!) {
+        final image = track['image'] ?? '';
+        if (image.isNotEmpty && image.startsWith('http')) {
+          imageUrls.add(image);
+        }
+      }
+    }
+
+    if (cachedAlbums != null) {
+      for (var album in cachedAlbums!) {
+        final image = album['photo'] ?? '';
+        if (image.isNotEmpty && image.startsWith('http')) {
+          imageUrls.add(image);
+        }
+      }
+    }
+
+    if (cachedArtists != null) {
+      for (var artist in cachedArtists!) {
+        final image = artist['picture'] ?? '';
+        if (image.isNotEmpty && image.startsWith('http')) {
+          imageUrls.add(image);
+        }
+      }
+    }
+
+    debugPrint('🖼️ Pre-caching ${imageUrls.length} images...');
+
+    final List<Future> futures = [];
+    for (var url in imageUrls) {
+      futures.add(
+        precacheImage(
+          NetworkImage(url),
+          context,
+          onError: (_, __) => debugPrint('⚠️ Failed to pre-cache: $url'),
+        ),
+      );
+    }
+
+    await Future.wait(futures);
+    debugPrint('✅ Image pre-caching completed!');
+  }
+
+  // ───── جلب الأغاني الشائعة ─────
+  static Future<List<Map<String, String>>> _fetchChartTracks() async {
+    try {
+      final response = await http
+          .get(Uri.parse('https://api.deezer.com/chart/0/tracks?limit=50'))
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List tracks = data['data'] ?? data['tracks']?['data'] ?? [];
+
+        return tracks.map<Map<String, String>>((track) {
+          final durationRaw = track['duration'] ?? 0;
+          final duration = durationRaw is int ? durationRaw : 0;
+          final minutes = duration ~/ 60;
+          final seconds = duration % 60;
+
+          return {
+            'title': (track['title'] ?? '').toString(),
+            'subtitle': (track['artist']?['name'] ?? '').toString(),
+            'Time': '$minutes:${seconds.toString().padLeft(2, '0')}',
+            'image': (track['album']?['cover_medium'] ?? '').toString(),
+            'preview': (track['preview'] ?? '').toString(),
+            'albumTitle': (track['album']?['title'] ?? '').toString(),
+            'albumImage': (track['album']?['cover_medium'] ?? '').toString(),
+            'albumId': (track['album']?['id']?.toString() ?? '').toString(),
+            'songId': (track['id']?.toString() ?? '0'),
+          };
+        }).toList();
+      }
+      return [];
+    } catch (e) {
+      debugPrint('❌ Error fetching tracks: $e');
+      return [];
+    }
+  }
+
   // ───── جلب الأغاني الأكثر استماعاً (Top 50 Global) ─────
   static Future<List<Map<String, String>>> _fetchTopSongs() async {
     const String playlistId = '3155776842';
@@ -161,6 +253,7 @@ class DataService {
             'subtitle': track['artist']?['name']?.toString() ?? '',
             'Time': '$minutes:${seconds.toString().padLeft(2, '0')}',
             'preview': track['preview']?.toString() ?? '',
+            'songId': (track['id']?.toString() ?? '0'),
           };
         }).toList();
       }
@@ -171,86 +264,22 @@ class DataService {
     }
   }
 
-  // ───── تحميل الصور مسبقاً (Pre-caching) ─────
-  static Future<void> _precacheImages(BuildContext context) async {
-    final List<String> imageUrls = [];
-
-    // جمع روابط صور الأغاني (من cachedTracks و cachedTopSongs)
-    if (cachedTracks != null) {
-      for (var track in cachedTracks!) {
-        final image = track['image'] ?? '';
-        if (image.isNotEmpty && image.startsWith('http')) {
-          imageUrls.add(image);
-        }
-      }
-    }
-
-    if (cachedTopSongs != null) {
-      for (var track in cachedTopSongs!) {
-        final image = track['image'] ?? '';
-        if (image.isNotEmpty && image.startsWith('http')) {
-          imageUrls.add(image);
-        }
-      }
-    }
-
-    // جمع روابط صور الألبومات
-    if (cachedAlbums != null) {
-      for (var album in cachedAlbums!) {
-        final image = album['photo'] ?? '';
-        if (image.isNotEmpty && image.startsWith('http')) {
-          imageUrls.add(image);
-        }
-      }
-    }
-
-    // جمع روابط صور الفنانين
-    if (cachedArtists != null) {
-      for (var artist in cachedArtists!) {
-        final image = artist['picture'] ?? '';
-        if (image.isNotEmpty && image.startsWith('http')) {
-          imageUrls.add(image);
-        }
-      }
-    }
-
-    debugPrint('🖼️ Pre-caching ${imageUrls.length} images...');
-
-    final List<Future> futures = [];
-    for (var url in imageUrls) {
-      futures.add(
-        precacheImage(
-          NetworkImage(url),
-          context,
-          onError: (_, __) => debugPrint('⚠️ Failed to pre-cache: $url'),
-        ),
-      );
-    }
-
-    await Future.wait(futures);
-    debugPrint('✅ Image pre-caching completed!');
-  }
-
   // ───── جلب الألبومات من مصادر متعددة ─────
   static Future<List<Map<String, String>>> _fetchMultipleAlbums() async {
     final List<Map<String, String>> allAlbums = [];
 
-    // 1. جلب الألبومات الشائعة من Chart
     final chartAlbums = await _fetchChartAlbums();
     allAlbums.addAll(chartAlbums);
 
-    // 2. جلب ألبومات من قوائم التشغيل الشائعة
     final playlistAlbums = await _fetchPlaylistAlbums();
     allAlbums.addAll(playlistAlbums);
 
-    // 3. جلب ألبومات من بحث عشوائي
     final searchQueries = ['pop', 'rock', 'hiphop', 'love', 'summer'];
     for (var query in searchQueries) {
       final searchAlbums = await _fetchSearchAlbums(query);
       allAlbums.addAll(searchAlbums);
     }
 
-    // إزالة الألبومات المكررة
     final Map<String, Map<String, String>> uniqueAlbums = {};
     for (var album in allAlbums) {
       final id = album['id'] ?? '';
@@ -364,42 +393,6 @@ class DataService {
         'id': (album['id']?.toString() ?? '').toString(),
       };
     }).toList();
-  }
-
-  // ───── جلب الأغاني الشائعة ─────
-  static Future<List<Map<String, String>>> _fetchChartTracks() async {
-    try {
-      final response = await http
-          .get(Uri.parse('https://api.deezer.com/chart/0/tracks?limit=50'))
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List tracks = data['data'] ?? data['tracks']?['data'] ?? [];
-
-        return tracks.map<Map<String, String>>((track) {
-          final durationRaw = track['duration'] ?? 0;
-          final duration = durationRaw is int ? durationRaw : 0;
-          final minutes = duration ~/ 60;
-          final seconds = duration % 60;
-
-          return {
-            'title': (track['title'] ?? '').toString(),
-            'subtitle': (track['artist']?['name'] ?? '').toString(),
-            'Time': '$minutes:${seconds.toString().padLeft(2, '0')}',
-            'image': (track['album']?['cover_medium'] ?? '').toString(),
-            'preview': (track['preview'] ?? '').toString(),
-            'albumTitle': (track['album']?['title'] ?? '').toString(),
-            'albumImage': (track['album']?['cover_medium'] ?? '').toString(),
-            'albumId': (track['album']?['id']?.toString() ?? '').toString(),
-          };
-        }).toList();
-      }
-      return [];
-    } catch (e) {
-      debugPrint('❌ Error fetching tracks: $e');
-      return [];
-    }
   }
 
   // ───── جلب الفنانين المشهورين ─────

@@ -63,10 +63,7 @@ class _CatogriesalbumState extends State<Catogriesalbum>
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) =>
-            Albumpage(title: widget.Title, albumId: widget.albumId),
-      ),
+      MaterialPageRoute(builder: (context) => Albumpage()),
     );
   }
 

@@ -51,7 +51,6 @@ class Publiccatogrieview extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(bottom: 20),
           child: Publiccatogrie(
-            context,
             photo: info['photo']!,
             Title: info['Title']!,
             Subtitle: info['Subtitle']!,

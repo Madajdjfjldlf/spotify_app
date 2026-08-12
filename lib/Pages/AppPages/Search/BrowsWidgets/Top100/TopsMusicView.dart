@@ -29,7 +29,6 @@ class _TopsMusicViewState extends State<TopsMusicView> {
       _errorMessage = null;
     });
 
-    // ✅ استخدام الأغاني الأكثر استماعاً عبر التاريخ (cachedTopSongs)
     if (DataService.cachedTopSongs != null &&
         DataService.cachedTopSongs!.isNotEmpty) {
       debugPrint('✅ Using All-Time Top Songs from DataService');
@@ -37,7 +36,6 @@ class _TopsMusicViewState extends State<TopsMusicView> {
       final songs = tracks.asMap().entries.map((entry) {
         final index = entry.key;
         final track = entry.value;
-
         return {
           'rank': '${index + 1}',
           'image': track['image'] ?? '',
@@ -45,6 +43,7 @@ class _TopsMusicViewState extends State<TopsMusicView> {
           'subtitle': track['subtitle'] ?? '',
           'duration': track['Time'] ?? '0:00',
           'preview': track['preview'] ?? '',
+          'songId': int.tryParse(track['songId'] ?? '0') ?? 0,
         };
       }).toList();
 
@@ -55,7 +54,6 @@ class _TopsMusicViewState extends State<TopsMusicView> {
       return;
     }
 
-    // ✅ إذا لم تكن البيانات مخزنة، نجلبها من الـ API
     await _fetchTopSongs();
   }
 
@@ -84,7 +82,6 @@ class _TopsMusicViewState extends State<TopsMusicView> {
         final songs = tracks.asMap().entries.map((entry) {
           final index = entry.key;
           final track = entry.value;
-
           final durationRaw = track['duration'] ?? 0;
           final duration = durationRaw is int ? durationRaw : 0;
           final minutes = duration ~/ 60;
@@ -97,22 +94,7 @@ class _TopsMusicViewState extends State<TopsMusicView> {
             'subtitle': track['artist']?['name']?.toString() ?? '',
             'duration': '$minutes:${seconds.toString().padLeft(2, '0')}',
             'preview': track['preview']?.toString() ?? '',
-          };
-        }).toList();
-
-        // ✅ تخزين البيانات في DataService
-        DataService.cachedTopSongs = tracks.map<Map<String, String>>((track) {
-          final durationRaw = track['duration'] ?? 0;
-          final duration = durationRaw is int ? durationRaw : 0;
-          final minutes = duration ~/ 60;
-          final seconds = duration % 60;
-
-          return {
-            'image': track['album']?['cover_medium']?.toString() ?? '',
-            'title': track['title']?.toString() ?? '',
-            'subtitle': track['artist']?['name']?.toString() ?? '',
-            'Time': '$minutes:${seconds.toString().padLeft(2, '0')}',
-            'preview': track['preview']?.toString() ?? '',
+            'songId': track['id'] as int,
           };
         }).toList();
 
@@ -186,7 +168,31 @@ class _TopsMusicViewState extends State<TopsMusicView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ✅ عنوان "All-Time Greatest Hits"
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: Row(
+            children: [
+              Text(
+                '🏆 All-Time Greatest Hits',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                'See All',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF1DB954),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
         ..._songs.map((song) {
           return GestureDetector(
             onTap: () {
@@ -203,18 +209,18 @@ class _TopsMusicViewState extends State<TopsMusicView> {
               );
             },
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Topswidgets(
                 rank: song['rank'].toString(),
                 imageUrl: song['image'].toString(),
                 title: song['title'].toString(),
                 subtitle: song['subtitle'].toString(),
                 duration: song['duration'].toString(),
+                songId: song['songId'] as int,
               ),
             ),
           );
         }).toList(),
-
         const SizedBox(height: 16),
       ],
     );

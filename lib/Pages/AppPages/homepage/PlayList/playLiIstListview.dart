@@ -8,7 +8,6 @@ class PlaylistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ استخدام البيانات المخزنة
     final songs = DataService.cachedTracks ?? [];
 
     if (songs.isEmpty) {
@@ -36,6 +35,7 @@ class PlaylistView extends StatelessWidget {
             title: song['title']!,
             subTitle: song['subtitle']!,
             Time: song['Time']!,
+            songId: int.tryParse(song['songId'] ?? '0') ?? 0,
             onTap: () => _navigateToNowPlaying(context, song),
             onPlayTap: () => _navigateToNowPlaying(context, song),
           ),
